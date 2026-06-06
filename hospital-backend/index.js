@@ -1,15 +1,17 @@
 import express from "express";
 import dotenv from "dotenv";
-import Connection from "../db/conn.js";
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+import path from "path";
+import Connection from "./db/conn.js";   // keep this — vercel.json fixes it
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import serverless from "serverless-http";
 
-// ROUTES
-import doctorRouter from "../routes/doctorRoutes.js";
-import patientRouter from "../routes/patientRoutes.js";
-import appointmentRouter from "../routes/appointmentRoutes.js";
-import userRouter from "../routes/userRoutes.js";
+import doctorRouter from "./routes/doctorRoutes.js";
+import patientRouter from "./routes/patientRoutes.js";
+import appointmentRouter from "./routes/appointmentRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 
 dotenv.config();
 
