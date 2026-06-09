@@ -2,22 +2,26 @@ import mongoose from "mongoose";
 
 const Connection = async () => {
     try {
-        // Check if already connected to avoid reconnecting on every request
-        if (mongoose.connection.readyState >= 1) {
-            return;
+        const url = process.env.DB_URL;
+
+        // 1. Check if already connected
+        if (mongoose.connection.readyState === 1) {
+            return; 
         }
 
-        const url = process.env.DB_URL;
-        
+        console.log("⏳ Connecting to MongoDB...");
+
+        // 2. Connect with robust timeout settings
         await mongoose.connect(url, {
-            // These options are required for newer MongoDB drivers
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000, // Stop trying to find server after 5s
+            socketTimeoutMS: 45000,        // Close socket after 45s of no activity
+            connectTimeoutMS: 10000,       // Give 10s to create connection
+            family: 4,                     // Force IPv4 (sometimes fixes local network issues)
         });
 
         console.log("✅ MongoDB Connected Successfully");
     } catch (error) {
-        console.log("❌ MongoDB Connection Error:", error.message);
+        console.log("❌ MongoDB Connection Failed:", error.message);
     }
 }
 
