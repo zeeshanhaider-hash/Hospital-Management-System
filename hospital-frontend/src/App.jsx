@@ -9,7 +9,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 
 // Pages
 import Landing from './pages/Landing';
-import Auth from './pages/Auth';
+import Auth from '../src/pages/Auth';
 import NotFound from './pages/NotFound';
 
 // ✅ FIX 1: IMPORT BOOK APPOINTMENT
