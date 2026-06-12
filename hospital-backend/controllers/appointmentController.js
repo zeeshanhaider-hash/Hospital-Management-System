@@ -86,44 +86,31 @@ export const getMyAppointments = async (req, res) => {
 /* =========================
    GET ALL APPOINTMENTS (ADMIN)
 ========================= */
+
+
 export const getAllAppointments = async (req, res) => {
   try {
-    // 1. Destructure query params for pagination (default to page 1, limit 10)
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const skip = (page - 1) * limit;
-
-    // 2. Execute query with pagination
-    const appointments = await Appointment.find()
-      .select("-__v")
-      .populate("doctor", "name specialization")
+    // Logic to fetch all appointments
+    const appointments = await Appointment.find({})
+      .populate("doctor", "name specialization") // Populate doctor ref
       .populate({
         path: "patient",
-        populate: { path: "user", select: "name email" }
+        populate: {
+          path: "user", // Populate user ref inside patient ref
+          select: "name" // Select only name for display
+        }
       })
-      .sort({ createdAt: -1 })
-      .skip(skip) // Skip previous pages
-      .limit(limit); // Limit results per page
+      .sort({ createdAt: -1 });
 
-    // 3. (Optional) Get total count for frontend "Load More" buttons
-    const total = await Appointment.countDocuments();
-
+    // Return the array
     res.status(200).json({
       success: true,
-      count: appointments.length,
-      pagination: {
-        total,
-        page,
-        pages: Math.ceil(total / limit)
-      },
-      data: appointments
+      appointments
     });
-
   } catch (error) {
-    console.error("Error fetching appointments:", error);
     res.status(500).json({
       success: false,
-      message: "Error retrieving appointments"
+      message: error.message
     });
   }
 };

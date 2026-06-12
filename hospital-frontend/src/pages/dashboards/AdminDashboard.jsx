@@ -519,46 +519,95 @@ useEffect(() => {
           </motion.div>
         )}
 
-        {/* 5. APPOINTMENTS TAB */}
-        {activeTab === "appointments" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="flex justify-between items-center mb-6">
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search appointments..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border bg-transparent outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
+        {/* ==================== APPOINTMENTS TAB ==================== */}
+{activeTab === "appointments" && (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    <div className="flex justify-between items-center mb-6">
+      <div className="relative w-64">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          size={16}
+        />
+
+        <input
+          type="text"
+          placeholder="Search appointments..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 rounded-xl border bg-transparent outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+      </div>
+
+      <button
+        // onClick={() => setModalType("appointment")}
+        onClick={downloadReport}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/30"
+      >
+        Download Report
+      </button>
+    </div>
+
+    {Array.isArray(lists.appointments) &&
+    lists.appointments.length > 0 ? (
+      <DataTable
+        columns={[
+          "Patient",
+          "Doctor",
+          "Date & Time",
+          "Status",
+          "Actions",
+        ]}
+        data={lists.appointments}
+        renderRow={(apt) => (
+          <tr
+            key={apt._id}
+            className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+          >
+            <td className="px-6 py-4">
+              {apt.patient?.user?.name || "Unknown"}
+            </td>
+
+            <td className="px-6 py-4 text-slate-600">
+              {apt.doctor?.user?.name || "Unknown Doctor"}
+            </td>
+
+            <td className="px-6 py-4 text-slate-600">
+              {new Date(apt.date).toLocaleDateString()} {apt.time}
+            </td>
+
+            <td className="px-6 py-4">
+              <StatusBadge status={apt.status} />
+            </td>
+
+            <td className="px-6 py-4 text-right">
+              <div className="flex gap-2 justify-end">
+                {user?.role === "admin" && (
+                  <button
+                    onClick={() => handleDelete(apt._id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
-            </div>
-            <DataTable
-              columns={["Patient", "Doctor", "Date & Time", "Status", "Actions"]}
-              data={filteredAppointments}
-              renderRow={(apt) => (
-                <tr key={apt._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="px-6 py-4 font-medium">{apt.patient?.user?.name}</td>
-                  <td className="px-6 py-4 text-slate-600">{apt.doctor?.user?.name}</td>
-                  <td className="px-6 py-4 text-slate-600">
-                    <div className="text-xs">{new Date(apt.date).toLocaleDateString()}</div>
-                    <div className="text-xs text-slate-400">{apt.time}</div>
-                  </td>
-                  <td className="px-6 py-4"><StatusBadge status={apt.status === 'Approved' ? 'Confirmed' : apt.status} /></td>
-                  <td className="px-6 py-4 flex gap-2">
-                    {apt.status === 'Pending' && (
-                      <>
-                        <button onClick={() => handleStatusUpdate(apt._id, 'Approved')} className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100"><Check size={16} /></button>
-                        <button onClick={() => handleStatusUpdate(apt._id, 'Rejected')} className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"><XCircle size={16} /></button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              )}
-            />
-          </motion.div>
+            </td>
+          </tr>
         )}
+      />
+    ) : (
+      <div className="text-slate-500 text-center py-20">
+        <EmptyState
+          message="No appointments found."
+          icon={<Search size={48} />}
+        />
+      </div>
+    )}
+  </motion.div>
+)}
       </AnimatePresence>
 
       {/* ━━━━ MODALS ━━━━ */}
